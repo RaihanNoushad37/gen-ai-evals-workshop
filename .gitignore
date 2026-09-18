@@ -1,0 +1,19 @@
+.venv/
+.env
+mlruns/
+__pycache__/
+.ipynb_checkpoints/
+notebooks/*.ipynb
+solutions/*.ipynb
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+
+# Data: ship the splits and the offline fallback, keep everything else local
+data/*
+!data/splits.parquet
+!data/report.md
+!data/cached_results.parquet
+
+# Authoring material, not part of the workshop
+specs/
