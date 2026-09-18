@@ -64,6 +64,7 @@ def check_mlflow() -> bool:
         with mlflow.start_run(run_name="smoke_test"):
             pass
         print("PASS: an MLflow run opens and closes against the local store")
+        print("  View your runs with: mlflow ui --backend-store-uri sqlite:///mlflow.db")
         return True
     except Exception as exc:
         print(f"FAIL: mlflow check — {exc}")

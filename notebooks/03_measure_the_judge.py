@@ -243,7 +243,8 @@ with mlflow.start_run(run_name="judge_v2_calib"):
 # %% [markdown]
 # ## See it, don't just read it
 #
-# Launch `mlflow ui` from the repo root (default <http://localhost:5000>), select
+# Launch `mlflow ui --backend-store-uri sqlite:///mlflow.db` from the repo root
+# (<http://localhost:5000>) — without that flag MLflow serves an empty store. Select
 # `judge_v1_calib` and `judge_v2_calib` in the run list, and hit Compare. Look at
 # whether sensitivity and specificity actually moved between the two runs, and
 # whether that movement is bigger than the noise floor logged alongside v1 — if

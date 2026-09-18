@@ -51,7 +51,7 @@ use whichever column applies to you:
 | build the four splits (once) | `make data` | `uv run python -m scripts.prepare_data` |
 | pre-flight checks | `make smoke` | `uv run python -m scripts.smoke` |
 | generate the notebooks | `make notebooks` | `uv run jupytext --to ipynb notebooks/*.py solutions/*.py` |
-| MLflow UI | `make ui` | `uv run mlflow ui` |
+| MLflow UI | `make ui` | `uv run mlflow ui --backend-store-uri sqlite:///mlflow.db` |
 | tests | `make test` | `uv run pytest` |
 
 **If `uv` is not recognised** but your virtual environment is active (your prompt starts
@@ -60,9 +60,21 @@ use whichever column applies to you:
 
 ### Seeing your results in MLflow
 
-Every judge run logs itself. Start the UI from the repo root in a second terminal —
-`make ui`, then open http://localhost:5000. Each run carries the model, rubric hash and
-seed that produced it, so a number is never separated from the configuration behind it.
+Every judge run logs itself. From the repo root, in a second terminal:
+
+```
+mlflow ui --backend-store-uri sqlite:///mlflow.db     # or: make ui
+```
+
+Then open http://localhost:5000.
+
+> **The `--backend-store-uri` is not optional.** Plain `mlflow ui` looks for a `./mlruns`
+> directory, doesn't find one, and quietly serves an empty store — you get a `Default`
+> experiment with no runs in it and no error explaining why. If that's what you're
+> looking at, you left the flag off.
+
+Each run carries the model, rubric hash and seed that produced it, so a number is never
+separated from the configuration behind it.
 
 | run | logged in | contains |
 |---|---|---|

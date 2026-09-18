@@ -212,7 +212,8 @@ with mlflow.start_run(run_name="judge_v1_prod"):
     mlflow.log_metric("ci_half_width", vd_current["half_width"])
 
 # %% [markdown]
-# Open this run in `mlflow ui` (<http://localhost:5000>) and look at `raw_rate`,
+# Open this run in the MLflow UI (`mlflow ui --backend-store-uri sqlite:///mlflow.db`)
+# and look at `raw_rate`,
 # `corrected_rate` and `true_rate` side by side — the same view that made v1 vs v2
 # comparable in Notebook 3 shows here whether the correction actually pulled the
 # estimate toward the truth, not just in which direction.
