@@ -15,14 +15,17 @@ Required: Python 3.11+, VS Code with the Python and Jupyter extensions, Git,
 [`uv`](https://docs.astral.sh/uv/getting-started/installation/), and a free Groq API key.
 
 ```bash
-git clone <repo> && cd evals-workshop
+git clone https://github.com/RaihanNoushad37/gen-ai-evals-workshop.git
+cd gen-ai-evals-workshop
 uv sync
 cp .env.example .env        # paste your Groq key into GROQ_API_KEY
-uv run python -m scripts.prepare_data   # builds data/splits.parquet, ~1 min
 uv run python -m scripts.smoke          # four checks, all should PASS
+uv run jupytext --to ipynb notebooks/*.py solutions/*.py
 ```
 
-Then `make notebooks` to generate the `.ipynb` files and open `notebooks/01_annotate.ipynb`.
+Then open `notebooks/01_annotate.ipynb`. The data splits are committed, so there's no
+build step — run `uv run python -m scripts.prepare_data` only if you want to rebuild
+them from source.
 
 **Getting a Groq key:** sign up at [console.groq.com](https://console.groq.com), go to
 API Keys, create one, paste it into `.env`. No card required.
@@ -39,15 +42,21 @@ Nothing else changes — every model reference reads from `config.py`.
 
 ## Commands
 
-```
-make setup      # uv sync
-make data       # build the four splits (run once)
-make smoke      # four pre-flight checks
-make test       # unit tests
-make lint       # ruff check + format check
-make notebooks  # jupytext .py -> .ipynb
-make ui         # mlflow ui, http://localhost:5000
-```
+`make` is not installed on Windows by default. Every target is a one-line command, so
+use whichever column applies to you:
+
+| | with `make` | without |
+|---|---|---|
+| install dependencies | `make setup` | `uv sync` |
+| build the four splits (once) | `make data` | `uv run python -m scripts.prepare_data` |
+| pre-flight checks | `make smoke` | `uv run python -m scripts.smoke` |
+| generate the notebooks | `make notebooks` | `uv run jupytext --to ipynb notebooks/*.py solutions/*.py` |
+| MLflow UI | `make ui` | `uv run mlflow ui` |
+| tests | `make test` | `uv run pytest` |
+
+**If `uv` is not recognised** but your virtual environment is active (your prompt starts
+`(evals-workshop)`), drop the `uv run` prefix — the tools are already on your PATH:
+`mlflow ui`, `pytest`, `jupytext --to ipynb notebooks/*.py`.
 
 ### Seeing your results in MLflow
 
