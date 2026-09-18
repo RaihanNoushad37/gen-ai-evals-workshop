@@ -49,6 +49,25 @@ make notebooks  # jupytext .py -> .ipynb
 make ui         # mlflow ui, http://localhost:5000
 ```
 
+### Seeing your results in MLflow
+
+Every judge run logs itself. Start the UI from the repo root in a second terminal —
+`make ui`, then open http://localhost:5000. Each run carries the model, rubric hash and
+seed that produced it, so a number is never separated from the configuration behind it.
+
+| run | logged in | contains |
+|---|---|---|
+| `judge_v2_dev` | Notebook 2 | dev sensitivity, specificity, accuracy, parse failures |
+| `judge_v1_calib` | Notebook 3 | calib Se, Sp, kappa, parse failures, noise floor |
+| `judge_v2_calib` | Notebook 3 | the same metrics, for the rubric with few-shot examples |
+| `judge_v1_prod` | Notebook 4 | raw rate, corrected rate, true rate, CI half-width |
+
+The comparison worth making is **`judge_v1_calib` against `judge_v2_calib`**: tick both
+in the run list and press *Compare*. They log the same metric names, so the UI lines
+them up. Ask whether v2's sensitivity or specificity actually moved, and whether the
+move is larger than the noise floor logged beside it. Usually it isn't — which is the
+point.
+
 ## The notebooks
 
 | | Notebook | Time | API calls |
