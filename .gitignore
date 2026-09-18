@@ -1,6 +1,7 @@
 .venv/
 .env
 mlruns/
+mlflow.db
 __pycache__/
 .ipynb_checkpoints/
 notebooks/*.ipynb

@@ -12,10 +12,6 @@ DATA_DIR = REPO_ROOT / "data"
 
 load_dotenv(REPO_ROOT / ".env")
 
-# MLflow 3.x raises on the plain filesystem tracking backend unless this is set. The
-# workshop stays on a local file store: no account, no separate database to manage.
-os.environ.setdefault("MLFLOW_ALLOW_FILE_STORE", "true")
-
 
 @dataclass(frozen=True)
 class Settings:
@@ -38,13 +34,20 @@ def _require(name: str) -> str:
 
 
 def _tracking_uri() -> str:
-    """Resolve a relative `file:` URI against the repo root, so runs from a notebook
-    land in the same store as runs from the command line."""
-    uri = os.environ.get("MLFLOW_TRACKING_URI", "file:./mlruns")
-    if uri.startswith("file:"):
-        path = Path(uri[len("file:") :])
-        if not path.is_absolute():
-            return (REPO_ROOT / path).as_uri()
+    """Anchor a relative tracking store to the repo root, so a notebook running from
+    notebooks/ logs to the same place as the command line and the MLflow UI."""
+    uri = os.environ.get("MLFLOW_TRACKING_URI", "sqlite:///mlflow.db")
+    for scheme, sep in (("sqlite:///", "sqlite:///"), ("file:", "file:")):
+        if uri.startswith(scheme):
+            path = Path(uri[len(sep) :])
+            if path.is_absolute():
+                return uri
+            resolved = REPO_ROOT / path
+            return (
+                f"sqlite:///{resolved.as_posix()}"
+                if scheme.startswith("sqlite")
+                else resolved.as_uri()
+            )
     return uri
 
 

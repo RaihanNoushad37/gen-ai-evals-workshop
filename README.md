@@ -124,8 +124,16 @@ notebooks are explicit about. On a higher tier, raise `JUDGE_TPM` in `.env` and 
 changes.
 
 **If you exhaust the daily budget**, the judge calls raise `DailyBudgetExhausted`.
-Re-run with `USE_CACHED_RESULTS=1` to continue from shipped results — the analysis is
-identical, only the calls are skipped.
+Re-run with `USE_CACHED_RESULTS=1` to continue from shipped results.
+
+**What the offline fallback covers, honestly.** Notebook 4 replays end to end from the
+shipped cache. Notebooks 2 and 3 replay their judge-v1 steps but not judge v2, because
+the v2 rubric is built from *your* judge's disagreements on `dev` — and the judge is
+non-deterministic, so your v2 rubric is not the one the cache was recorded against.
+That is a genuine property of the exercise rather than an oversight: anything derived
+from live model output is not reproducible, which is the same lesson Notebook 3's noise
+floor teaches. If you need the v2 steps offline, pin `RUBRIC_V2` to a fixed string
+instead of mining it.
 
 ## What this is, and what it is not
 

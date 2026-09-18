@@ -5,5 +5,5 @@ notebooks: ; uv run jupytext --to ipynb notebooks/*.py solutions/*.py
 smoke:     ; uv run python -m scripts.smoke
 data:      ; uv run python -m scripts.prepare_data
 cache:     ; uv run python -m scripts.build_cache
-ui:        ; uv run mlflow ui
+ui:        ; uv run mlflow ui --backend-store-uri sqlite:///mlflow.db
 clean:     ; rm -rf .pytest_cache **/__pycache__ mlruns
