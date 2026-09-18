@@ -12,6 +12,7 @@ import os
 import random
 import re
 import time
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 import litellm
@@ -154,6 +155,20 @@ async def _call_one(
         return {"text": None, "error": f"exceeded {_MAX_RETRIES} retries"}
 
 
+def _run_sync(coro):
+    """Run `coro` to completion from sync code, inside a notebook or out.
+
+    Jupyter is already running an event loop, and `asyncio.run` refuses to nest, so
+    there we hand the work to a thread that can own its own loop.
+    """
+    try:
+        asyncio.get_running_loop()
+    except RuntimeError:
+        return asyncio.run(coro)
+    with ThreadPoolExecutor(max_workers=1) as pool:
+        return pool.submit(asyncio.run, coro).result()
+
+
 async def _run_batch(prompts: list[str], model: str, tpm: int, max_concurrency: int) -> list[dict]:
     window = _TokenWindow(tpm)
     semaphore = asyncio.Semaphore(max_concurrency)
@@ -203,7 +218,7 @@ def judge_batch(
     fresh_by_index: dict[int, dict] = {}
     if to_run:
         indices, run_prompts = zip(*to_run, strict=True)
-        fresh = asyncio.run(_run_batch(list(run_prompts), model, tpm, max_concurrency))
+        fresh = _run_sync(_run_batch(list(run_prompts), model, tpm, max_concurrency))
         fresh_by_index = dict(zip(indices, fresh, strict=True))
         # Cache successes only, so a transient failure is retried next run.
         for i, result in fresh_by_index.items():

@@ -241,3 +241,24 @@ def test_retry_after_falls_back_to_exponential_backoff():
     )
     seconds = llm._retry_after_seconds(exc, attempt=2)
     assert 4 <= seconds <= 5
+
+
+def test_judge_batch_works_inside_a_running_loop(tmp_path, monkeypatch):
+    """Jupyter already runs an event loop, where asyncio.run() refuses to nest."""
+
+    async def fake_acompletion(model, messages):
+        return _FakeResponse("Reason: ok.\nVerdict: no")
+
+    monkeypatch.setattr(litellm, "acompletion", fake_acompletion)
+
+    async def from_inside_a_loop():
+        return llm.judge_batch(
+            ["prompt a"],
+            "groq:/dummy",
+            tpm=8000,
+            max_concurrency=1,
+            cache_path=tmp_path / "cache.json",
+        )
+
+    result = asyncio.run(from_inside_a_loop())
+    assert result[0]["error"] is None
